@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Faisal Yahya">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>Lessons Project</title>
+    <script type = "text/javascript" src = "js/vue.js"></script>
+    <script type = "text/javascript" src = "resource/lesson.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .catno{
+            /* border-radius: 50%; */
+            background-color: blue ;
+            color: white;
+            padding: 5px;
+        }
+        body {
+        min-height: 75rem;
+        padding-top: 4.5rem;
+        }
+
+        .nav-link{
+            background-color: grey;
+        }
+    </style>
+  </head>
+  <body class="bg-light">
+      <div v-if ="stepone" id = "stepone" class="container">
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" href="#">Home</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li v-if = "showcat" class="nav-item active ">
+                        <a v-on:click="gotoStepTwo" class="nav-link rounded-pill" href="#">Shopping Cart <span class="sr-only">(current)</span> <span class="catno rounded-circle" >{{no_cart}}</span></a>
+                    </li>
+                </ul>
+                <div>
+                    <form class="form-inline text-center">
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select  name="field" @change="valueChange(field, sorttype)" class="form-control" v-model="field">
+                                <option value="Subject">Subject</option>
+                                <option value="Location">Location</option>
+                                <option value="Price">Price</option>
+                                <option value="Space">Space</option>
+                            </select>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select name="sorttype" @change="valueChange(field, sorttype)" class="form-control" v-model="sorttype">
+                                <option value="Asc">Asc</option>
+                                <option value="Desc">Desc</option>
+                            </select>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <div >
+            <div class="text-center">
+                <form class="form-inline text-center">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select  name="field" @change="valueChange(field, sorttype)" class="form-control" v-model="field">
+                            <option value="Subject">Subject</option>
+                            <option value="Location">Location</option>
+                            <option value="Price">Price</option>
+                            <option value="Space">Space</option>
+                        </select>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <select name="sorttype" @change="valueChange(field, sorttype)" class="form-control" v-model="sorttype">
+                            <option value="Asc">Asc</option>
+                            <option value="Desc">Desc</option>
+                        </select>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="row">
+                <div class="col-md-4" v-for = "(item, index) in lessonList" :key="index">
+                    <div class="card mb-4 shadow-sm">
+                        <img :src="getImgUrl(item)" class="rounded" alt="Lesson Images" width="100%" height="225">
+    
+                      <div class="card-body">
+                        <p class="card-text font-weight-bolder text-capitalize">{{item.subject}}</p>
+                        <p class="card-text font-weight-light"><span>Location: {{item.location}}</span> <br/><span>{{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)}}</span> - <span>{{item.space}} Space</span></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" v-if = "item.space>0? true: false" v-on:click = "addToCart(index)">Add To Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <!-- Step two-->
+      <div v-if="steptwo" id = "steptwo" class="container">
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <a class="navbar-brand" v-on:click= "openStepOne" href="#">Home</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+               
+            </div>
+        </nav>
+        <div >
+                
+            <div class="row">
+                <div class="col-md-8 order-md-1 mb-8">
+                    <div class="row">
+                        <!-- start-->
+                        <div class="col-md-6" v-for = "(item, index) in cartList" :key="index">
+                            <div class="card mb-4 shadow-sm">
+                                <img :src="getImgUrl(item)" class="rounded" alt="Lesson Images" width="100%" height="225">
+                            <div class="card-body">
+                                <p class="card-text font-weight-bolder text-capitalize">{{item.subject}}</p>
+                                <p class="card-text font-weight-light"><span>Location: {{item.location}}</span> </p>
+                                <p><span>{{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)}}</span> - <button type="button" v-on:click = "increaseCart(index)" class="btn btn-sm btn-outline-secondary">+</button><span> {{item.space}} Space </span><button v-on:click = "decreaseCart(index)" type="button" class="btn btn-sm btn-outline-secondary">-</button></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" v-if = "item.space>0? true: false" v-on:click = "removeFromCart(index)">Remove</button>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                <!-- end-->
+                </div>
+                <div class="col-md-4 order-md-2 mb-4">
+                   
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Your cart Summarry</span>
+                        <span class="badge badge-secondary badge-pill">{{no_lesson}}</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        <li v-for = "(item, index) in cartList" :key="index" class="list-group-item d-flex justify-content-between lh-condensed">
+                          <div>
+                            <h6 class="my-0">{{item.subject}}</h6>
+                            <small class="text-muted">{{item.location}}</small>
+                            <small class="text-muted"><span>{{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)}}</span>  -  <span>{{item.space}} Space</span></small>
+                          </div>
+                          <span class="text-muted">{{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price * item.space)}}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total (USD)</span>
+                            <strong>{{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCost)}} </strong>
+                          </li>
+                    </ul>
+                    <form class="needs-validation" novalidate id="app" @submit="submitInput" method="post">
+                        <hr class="mb-4">
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Check Out Form</span>
+                            <span class="badge badge-secondary"><span style="color:red">*</span> required</span>
+                        </h4>
+                        <div class="alert alert-dismissible fade show" v-bind:class="{ 'alert-success': success, 'alert-danger': danger }" role="alert" v-if="errors.length">
+                            <ul>
+                              <li v-for="error in errors">{{ error }}</li>
+                            </ul>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username">Enter Full Name <span style="color:red">*</span></label>
+                            <input type="text" v-model="fullname"  v-on:keypress="preventNumber($event)" v-on:keyup="validateInput($event)"  class="form-control badge-pill" id="username" placeholder="First Middle Last Name">
+                          </div>
+                          <div class="mb-3">
+                            <label for="phoneno">Enter Phone N<u>o</u> <span style="color:red">*</span></label>
+                            <input type="phone" v-model="phoneno" v-on:keypress="preventText($event)" v-on:keyup="validateInput($event)" class="form-control badge-pill" id="phoneno" placeholder="08033221133">
+                            </div>
+                          <hr class="mb-4">
+                        <button v-if="validinput" class="btn btn-outline-secondary btn-lg btn-block badge-pill"  type="submit">Continue to checkout</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+      </div>
+      <script type = "text/javascript" src = "js/index.js"></script>
+      
+    </body>
+    <footer class="text-muted bg-dark p-3">
+        <div class="container">
+          <p class="float-right">
+            <a href="#">Back to top</a>
+          </p>
+          <p>Lesson Cart List Web App - Build In Vue.js By Faisal Yahaya  &copy; 2020</p>
+        </div>
+      </footer>
+</html>
